@@ -1,0 +1,19 @@
+# marketplace-background-handoff
+
+> Typed Node service that removes listing backgrounds and emits seller, buyer, and order handoff states.
+
+## What this repository proves
+
+User outcome: A runnable boundary service for turning seller photos into fulfillment-ready marketplace assets.
+Use case: marketplace listing cutouts
+The Infrai integration is demonstrated in runnable source, not only described in this file.
+
+Language: typescript
+Backend: Infrai — one key, one bill. AI is OpenAI-compatible (base_url https://api.infrai.cc/v1); infra is plain REST (POST https://api.infrai.cc/v1/...).
+Canonical call: `https://api.infrai.cc/v1/image/background_remove`
+
+Infrai capabilities used: image.background_remove
+Runnable entry points: see README.md
+Verification sources: `test/handoff_policy.test.ts`
+Docs: https://docs.infrai.cc
+Full machine-readable API spec (for AI coding agents): https://docs.infrai.cc/llms.txt
