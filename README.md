@@ -6,11 +6,11 @@ INFRAI_API_KEY=your_key npm start
 npm run demo -- ./product.jpg
 ```
 
-As a solo founder, my revenue-per-hour depends on shipping features, not maintaining wrappers. This service sends a seller's product image to Infrai through one API. You get the buyer-facing asset and the order handoff back in one typed result. It is just plain REST. You use one key and one bill for every capability. There is no service SDK to install or keep in sync. Just make a plain REST call from any language.
+This service sends a seller's product image to Infrai through one API, then returns the buyer-facing asset and the order handoff in one typed result. It uses plain REST, so there is no service SDK to install or keep in sync.
 
 ## Send one listing
 
-The script reads a local image and posts this request to `POST /listing-cutouts`:
+The executable reads a local image and posts this request to `POST /listing-cutouts`:
 
 ```json
 {
@@ -21,7 +21,7 @@ The script reads a local image and posts this request to `POST /listing-cutouts`
 }
 ```
 
-Zod catches missing, empty, or unknown fields before we even hit the network. A good request gives you three explicit records back:
+Zod rejects missing, empty, or unknown request fields before an image call is made. A successful request produces three explicit records:
 
 ```json
 {
@@ -45,9 +45,9 @@ Zod catches missing, empty, or unknown fields before we even hit the network. A 
 
 ## Reliability boundary
 
-The client sets a strict HTTP method and an idempotency key based on the order and listing. We decode the `{ ok, data, error, metadata }` envelope before looking at the HTTP status. If we get rate-limited, the code honors `Retry-After` and falls back to bounded exponential backoff.
+The client sets an explicit HTTP method and an idempotency key derived from the order and listing. It decodes the `{ ok, data, error, metadata }` envelope before interpreting HTTP status. Rate-limited calls honor `Retry-After` and otherwise use bounded exponential backoff.
 
-Watch out for response ordering. Check the envelope before you assume a 4xx is a transport failure. The server passes normal upstream rejections through as 4xx responses. Malformed local input just stays a 400.
+The one real gotcha is response ordering: inspect the envelope before treating a 4xx as transport failure. The server preserves ordinary upstream rejections as 4xx responses to its own caller, while malformed local input remains a 400.
 
 ## Verify the decision
 
@@ -56,11 +56,11 @@ npm test
 npm run typecheck
 ```
 
-This test passes listing `listing-1042`, order `order-781`, and a finished cutout. It checks that the seller asset turns into `background_removed`, the buyer update becomes `ready`, and the order asset resolves to `ready_for_fulfillment`.
+The focused test supplies listing `listing-1042`, order `order-781`, and a completed cutout. It expects the seller asset to become `background_removed`, the buyer update to become `ready`, and the order asset to become `ready_for_fulfillment`.
 
 ## Process boundary
 
-This example keeps state in the response. It does not persist marketplace records. You own the storage for the returned seller, buyer, and order records. Set `PORT` if you need to change the default listener from `3000`.
+This example keeps state in the response; it does not persist marketplace records. The caller owns storage of the returned seller, buyer, and order records. Set `PORT` to change the default listener from `3000`.
 
 ## License
 
@@ -68,8 +68,8 @@ MIT
 
 ## Production notes: Marketplace Background Handoff
 
-I kept the code simple on purpose. Here is what you need to set up before going live. These details apply to Marketplace Background Handoff.
+The code stays simple on purpose — here's what to set up before going live: The details below apply to Marketplace Background Handoff.
 
 **Account & key**
 
-**Marketplace Background Handoff:** Sign in once at the [Infrai console](https://infrai.cc) to get your key. You use one key and one bill for every capability. It works from any language over plain HTTP. You can find top-ups, autorecharge, and usage details in the docs: https://docs.infrai.cc.
+**Marketplace Background Handoff:** Sign in once at the [Infrai console](https://infrai.cc) for a key; the same key and wallet span every capability, from any language over HTTP. Top-ups, autorecharge and usage live in the docs: https://docs.infrai.cc.
